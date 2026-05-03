@@ -42,11 +42,11 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Pre-built demo accounts for presentation
 const DEMO_ACCOUNTS: Record<string, { password: string; user: User }> = {
-  "admin@demo.com": { password: "admin123", user: { name: "Demo Admin", email: "admin@demo.com", role: "admin" } },
-  "seller@demo.com": { password: "seller123", user: { name: "Demo Seller", email: "seller@demo.com", role: "seller" } },
-  "user@demo.com": { password: "user123", user: { name: "Demo Customer", email: "user@demo.com", role: "customer" } },
-  "admin@biharbazaar.com": { password: "password123", user: { name: "Admin", email: "admin@biharbazaar.com", role: "admin" } },
-  "seller@biharbazaar.com": { password: "password123", user: { name: "Bihar Bazaar Seller", email: "seller@biharbazaar.com", role: "seller" } },
+  "admin@demo.com": { password: "admin123", user: { id: "demo-admin", name: "Demo Admin", email: "admin@demo.com", role: "admin" } },
+  "seller@demo.com": { password: "seller123", user: { id: "demo-seller", name: "Demo Seller", email: "seller@demo.com", role: "seller" } },
+  "user@demo.com": { password: "user123", user: { id: "demo-user", name: "Demo Customer", email: "user@demo.com", role: "customer" } },
+  "admin@biharbazaar.com": { password: "password123", user: { id: "demo-admin", name: "Admin", email: "admin@biharbazaar.com", role: "admin" } },
+  "seller@biharbazaar.com": { password: "password123", user: { id: "demo-seller", name: "Bihar Bazaar Seller", email: "seller@biharbazaar.com", role: "seller" } },
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -148,7 +148,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       // Save to localStorage without password
-      const newUser: User = { name, email: lower, role };
+      const newUser: User = { 
+        id: "user-" + Math.random().toString(36).substr(2, 9),
+        name, 
+        email: lower, 
+        role 
+      };
       registered[lower] = newUser;
       localStorage.setItem("ekart-registered-users", JSON.stringify(registered));
 

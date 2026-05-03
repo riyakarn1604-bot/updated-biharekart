@@ -29,6 +29,7 @@ export default function SellerPage() {
   const [sellerStatus, setSellerStatus] = useState<string>("pending");
   const [rejectionReason, setRejectionReason] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [sellerProfile, setSellerProfile] = useState<any>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -58,10 +59,17 @@ export default function SellerPage() {
         if (profData.sellerProfile) {
           setSellerStatus(profData.sellerProfile.status);
           setRejectionReason(profData.sellerProfile.rejectionReason);
+          setSellerProfile(profData.sellerProfile);
         }
 
         const prodRes = await fetch(`/api/products?sellerId=${user.id}`);
         const prodData = await prodRes.json();
+        
+        // If demo user, ensure they are seen as approved even if API is slow
+        if (user.id.startsWith('demo-')) {
+          setSellerStatus("approved");
+        }
+
         if (Array.isArray(prodData)) {
           setMyProducts(prodData.map((p: any) => ({
             ...p,
@@ -106,6 +114,26 @@ export default function SellerPage() {
         <Header />
         <div className="flex-1 flex items-center justify-center">
           <div className="w-12 h-12 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  // Role check
+  if (user.role !== "seller" && user.role !== "admin") {
+    return (
+      <div className="relative flex flex-col min-h-screen">
+        <Header />
+        <div className="flex-1 flex flex-col items-center justify-center py-20 px-4">
+          <span className="text-6xl mb-4">🚫</span>
+          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
+          <p className="text-black/50 dark:text-white/50 mb-6 max-w-md text-center">
+            You are logged in as a {user.role}. Only seller accounts can access this dashboard.
+          </p>
+          <Link href="/seller-register" className="bg-primary text-primary-foreground px-6 py-3 rounded-full font-semibold hover:opacity-90">
+            Switch to Seller Account
+          </Link>
         </div>
         <Footer />
       </div>
@@ -229,7 +257,7 @@ export default function SellerPage() {
           )
         ),
         brandDescription: formData.brandDescription,
-        vendor: (user as any).sellerProfile?.shopName || user.name || "Unknown Seller",
+        vendor: sellerProfile?.shopName || user.name || "Unknown Seller",
         sellerId: user.id,
       };
 

@@ -36,13 +36,9 @@ export default function LoginPage() {
 
     try {
       // If it's a demo account, try mock login FIRST for instant results
+      // But DON'T return early, we still want to call signIn for a real session
       if (isDemoEmail) {
-        const mockRes = mockLogin(email, password);
-        if (mockRes.success) {
-          setLoading(false);
-          router.replace("/");
-          return;
-        }
+        mockLogin(email, password);
       }
 
       const res = await signIn("email-password", {
