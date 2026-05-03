@@ -77,25 +77,47 @@ model Address {
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  name          String
-  description   String
-  price         Float
-  originalPrice Float?
-  category      String
-  image         String   @default("bg-zinc-200 dark:bg-zinc-800")
-  vendor        String
-  rating        Float    @default(0)
-  reviews       Int      @default(0)
-  stock         Int      @default(0)
-  inStock       Boolean  @default(true)
-  status        String   @default("active") // "active" | "draft"
-  sellerId      String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String   @id @default(cuid())
+  name             String
+  description      String
+  price            Float
+  originalPrice    Float?
+  category         String
+  image            String   @default("bg-zinc-200 dark:bg-zinc-800")
+  images           String   @default("[]") // JSON array of image URLs
+  videoUrl         String?
+  highlights       String   @default("[]") // JSON array of bullet-point strings
+  details          String   @default("{}") // JSON key-value pairs for specs table
+  brandDescription String?  // Rich marketing description from seller
+  vendor           String
+  rating           Float    @default(0)
+  reviews          Int      @default(0)
+  stock            Int      @default(0)
+  inStock          Boolean  @default(true)
+  status           String   @default("active") // "active" | "draft"
+  sellerId         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  seller     User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  seller        User        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  orderItems    OrderItem[]
+  productReviews Review[]
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  productId String
+  userId    String?
+  userName  String
+  rating    Int      // 1-5
+  title     String
+  body      String
+  images    String?  // JSON array of image URLs
+  helpful   Int      @default(0)
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 model Order {
@@ -137,7 +159,10 @@ model SellerProfile {
   description String?
   gstNumber   String?
   bankAccount String?
+  status      String @default("pending") // "pending" | "approved" | "rejected"
+  rejectionReason String?
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

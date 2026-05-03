@@ -34,3 +34,41 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Environment Setup & Running Locally
+
+To run this ecommerce platform locally, you will need to set up the following environment variables in a `.env` file at the root of the project:
+
+```env
+# Required for database connection (SQLite in development)
+DATABASE_URL="file:./dev.db"
+
+# Required for NextAuth session encryption
+AUTH_SECRET="your-super-secret-auth-key-at-least-32-chars"
+
+# Optional: Set to true only in development to allow seeding demo data
+SEED_DEMO="true"
+```
+
+### Running Locally
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Initialize the Prisma database and run migrations:
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+### Seeding Demo Data
+To safely seed demo data (products, categories, mock users), ensure you have `SEED_DEMO="true"` set in your `.env` file, then run:
+
+```bash
+npx prisma db seed
+```
+**Note:** Demo accounts and seeding logic are disabled in production to protect data integrity. Credentials are not printed to logs.

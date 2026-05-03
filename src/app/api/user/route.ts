@@ -47,12 +47,34 @@ export async function GET() {
     const session = await auth();
     if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Handle demo accounts without database record
+    if (session.user.id.startsWith("demo-")) {
+      return NextResponse.json({
+        id: session.user.id,
+        name: session.user.name,
+        email: session.user.email,
+        role: (session.user as any).role,
+        sellerProfile: (session.user as any).role === "seller" || (session.user as any).role === "admin" ? {
+          status: "approved",
+          shopName: "Bihar Bazaar Demo Store",
+          description: "Authentic products from the heart of Bihar."
+        } : null
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      select: { id: true, name: true, email: true, phone: true, role: true, image: true },
+      include: { sellerProfile: true },
     });
-    return NextResponse.json(user);
-  } catch {
+    
+    if (user) {
+      // Remove sensitive fields
+      const { password, ...safeUser } = user as any;
+      return NextResponse.json(safeUser);
+    }
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
+  } catch (err) {
+    console.error("User API error:", err);
     return NextResponse.json({ error: "Failed to fetch user" }, { status: 500 });
   }
 }
